@@ -83,7 +83,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {!user?.profile?.stripeOnboarded && !user?.profile?.addressLine1 ? (
+        {!user?.profile?.paymentOnboarded && !user?.profile?.addressLine1 ? (
           <TouchableOpacity
             style={styles.setupCard}
             onPress={() => router.push('/settings')}
@@ -98,7 +98,7 @@ export default function DashboardScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.white} />
           </TouchableOpacity>
-        ) : !user?.profile?.stripeOnboarded ? (
+        ) : !user?.profile?.paymentOnboarded ? (
           <TouchableOpacity
             style={[styles.setupCard, styles.setupCardAccent]}
             onPress={() => router.push('/settings')}

@@ -16,7 +16,7 @@ import { colors, spacing, typography, borderRadius, shadows } from '../src/theme
 // Shown once after registration. Explains the app and the two separate
 // payment concepts so clients aren't confused:
 //   1. Their InvoiceVoice subscription ($29/mo) — billed separately
-//   2. Accepting payments from their customers — optional Stripe Connect
+//   2. Accepting payments from their customers — optional PayMe onboarding
 
 interface Step {
   icon: keyof typeof Ionicons.glyphMap;

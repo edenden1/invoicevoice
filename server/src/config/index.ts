@@ -15,7 +15,10 @@ function optionalEnv(name: string, defaultValue: string = ''): string {
   return process.env[name] || defaultValue;
 }
 
+const demoMode = optionalEnv('DEMO_MODE', 'false') === 'true';
+
 export const config = {
+  demoMode,
   port: parseInt(optionalEnv('PORT', '3000'), 10),
   nodeEnv: optionalEnv('NODE_ENV', 'development'),
   isDev: optionalEnv('NODE_ENV', 'development') === 'development',
@@ -42,21 +45,25 @@ export const config = {
   llmProvider: optionalEnv('LLM_PROVIDER', 'anthropic') as 'anthropic' | 'openai',
 
   whisper: {
+    // 'groq' uses Groq's Whisper API — fast & free tier available (requires GROQ_API_KEY)
     // 'openai' uses the OpenAI Whisper API (requires OPENAI_API_KEY)
-    // 'local' uses a local Whisper-compatible server (e.g. whisper.cpp, faster-whisper)
-    provider: optionalEnv('WHISPER_PROVIDER', 'openai') as 'openai' | 'local',
-    // URL for local Whisper server (e.g. http://localhost:8080)
-    localUrl: optionalEnv('WHISPER_LOCAL_URL', 'http://localhost:8080'),
+    provider: optionalEnv('WHISPER_PROVIDER', 'groq') as 'openai' | 'groq',
   },
 
-  stripe: {
-    secretKey: requireEnv('STRIPE_SECRET_KEY'),
-    webhookSecret: requireEnv('STRIPE_WEBHOOK_SECRET'),
+  groq: {
+    apiKey: optionalEnv('GROQ_API_KEY'),
+  },
+
+  payme: {
+    apiKey: demoMode ? 'demo' : requireEnv('PAYME_API_KEY'),
+    sellerKey: demoMode ? 'demo' : requireEnv('PAYME_SELLER_KEY'),
+    webhookSecret: demoMode ? 'demo' : requireEnv('PAYME_WEBHOOK_SECRET'),
     applicationFeePercent: 2,
-    // Recurring price for the $29/month InvoiceVoice subscription
-    // Create in Stripe Dashboard → Products → Add Product → $29/month recurring
-    priceId: requireEnv('STRIPE_PRICE_ID'),
-    trialDays: parseInt(optionalEnv('STRIPE_TRIAL_DAYS', '14'), 10),
+    // PayMe subscription plan ID for the $29/month InvoiceVoice subscription
+    subscriptionPlanId: demoMode ? 'demo' : requireEnv('PAYME_SUBSCRIPTION_PLAN_ID'),
+    trialDays: parseInt(optionalEnv('PAYME_TRIAL_DAYS', '14'), 10),
+    // 'sandbox' or 'live'
+    environment: optionalEnv('PAYME_ENVIRONMENT', 'sandbox') as 'sandbox' | 'live',
   },
 
   twilio: {
@@ -68,7 +75,7 @@ export const config = {
   app: {
     baseUrl: optionalEnv('APP_BASE_URL', 'http://localhost:3000'),
     clientUrl: optionalEnv('CLIENT_URL', 'http://localhost:8081'),
-    // Mobile deep-link scheme — used for Stripe Connect return URLs
+    // Mobile deep-link scheme — used for PayMe onboarding return URLs
     scheme: optionalEnv('APP_SCHEME', 'invoicevoice'),
   },
 

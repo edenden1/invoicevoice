@@ -5,7 +5,7 @@ import { prisma } from '../config/database';
 import { generateToken } from '../utils/helpers';
 import { AppError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
-import { createBillingCustomer, createBillingSubscription } from '../services/stripe.service';
+import { createBillingCustomer, createBillingSubscription } from '../services/payme.service';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),

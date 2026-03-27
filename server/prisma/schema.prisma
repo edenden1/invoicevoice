@@ -39,12 +39,12 @@ model Profile {
   state           String?
   zip             String?
 
-  // Stripe Connect (receiving payments from customers)
-  stripeAccountId String?
-  stripeOnboarded Boolean @default(false)
+  // PayMe marketplace (receiving payments from customers)
+  paymeAccountId  String?
+  paymentOnboarded Boolean @default(false)
 
-  // Stripe Billing (InvoiceVoice subscription)
-  stripeCustomerId     String?
+  // PayMe subscription billing (InvoiceVoice subscription)
+  paymeCustomerId      String?
   subscriptionId       String?
   subscriptionStatus   String   @default("trialing") // trialing | active | past_due | canceled | unpaid
   trialEndsAt          DateTime?
@@ -96,12 +96,12 @@ model Invoice {
   total           Float
 
   pdfUrl          String?
-  stripePaymentId String?
-  stripePaymentUrl String?
+  paymentId       String?
+  paymentUrl      String?
 
   sentAt          DateTime?
   paidAt          DateTime?
-  paymentMethod   String?   // 'stripe' | 'cash' | 'check' | 'venmo' | 'zelle' | 'paypal' | 'bank_transfer' | 'other'
+  paymentMethod   String?   // 'payme' | 'bit' | 'cash' | 'check' | 'bank_transfer' | 'paypal' | 'other'
   voiceTranscript String?
 
   createdAt       DateTime      @default(now())

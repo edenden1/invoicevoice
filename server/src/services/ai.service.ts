@@ -26,10 +26,10 @@ export interface InvoiceExtraction {
 }
 
 export async function transcribeAudio(filePath: string): Promise<string> {
-  if (config.whisper.provider === 'local') {
-    return transcribeWithLocalWhisper(filePath);
+  if (config.whisper.provider === 'openai') {
+    return transcribeWithOpenAI(filePath);
   }
-  return transcribeWithOpenAI(filePath);
+  return transcribeWithGroq(filePath);
 }
 
 async function transcribeWithOpenAI(filePath: string): Promise<string> {
@@ -49,23 +49,31 @@ async function transcribeWithOpenAI(filePath: string): Promise<string> {
   }
 }
 
-async function transcribeWithLocalWhisper(filePath: string): Promise<string> {
-  const url = `${config.whisper.localUrl}/inference`;
+async function transcribeWithGroq(filePath: string): Promise<string> {
+  if (!config.groq.apiKey) {
+    throw new Error('GROQ_API_KEY is required when WHISPER_PROVIDER is "groq"');
+  }
+
   const fileBuffer = fs.readFileSync(filePath);
   const fileName = path.basename(filePath);
 
   const formData = new FormData();
   formData.append('file', new Blob([fileBuffer]), fileName);
+  formData.append('model', 'whisper-large-v3-turbo');
   formData.append('response_format', 'json');
   formData.append('language', 'en');
 
-  const response = await fetch(url, {
+  const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${config.groq.apiKey}`,
+    },
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error(`Local Whisper server error: ${response.status} ${response.statusText}`);
+    const text = await response.text();
+    throw new Error(`Groq Whisper API error: ${response.status} ${text}`);
   }
 
   const data = (await response.json()) as { text: string };

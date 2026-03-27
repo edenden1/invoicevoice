@@ -6,20 +6,20 @@ import { profileApi } from '../src/services/api';
 import { useAuth } from '../src/contexts/AuthContext';
 import { colors, spacing, typography } from '../src/theme';
 
-// This screen is opened automatically when Stripe redirects back to the app
-// via the deep link: invoicevoice://stripe-callback
+// This screen is opened automatically when PayMe redirects back to the app
+// via the deep link: invoicevoice://payme-callback
 // It confirms onboarding status with the server then returns to Settings.
-export default function StripeCallbackScreen() {
+export default function PaymeCallbackScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { refreshUser } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const isRefresh = params.refresh === '1'; // invoicevoice://stripe-refresh
+  const isRefresh = params.refresh === '1'; // invoicevoice://payme-refresh
 
   useEffect(() => {
     async function confirm() {
       try {
-        await profileApi.confirmStripeOnboarding();
+        await profileApi.confirmPaymeOnboarding();
         await refreshUser();
         setStatus('success');
         setTimeout(() => router.replace('/settings'), 1500);
@@ -53,7 +53,7 @@ export default function StripeCallbackScreen() {
           <Ionicons name="time-outline" size={64} color={colors.accent} />
           <Text style={styles.title}>Still Processing</Text>
           <Text style={styles.message}>
-            Stripe is still verifying your account. Check back in a few minutes. Returning to settings...
+            PayMe is still verifying your account. Check back in a few minutes. Returning to settings...
           </Text>
         </>
       )}

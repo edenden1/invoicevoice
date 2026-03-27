@@ -30,8 +30,9 @@ app.use(
   })
 );
 
-// Webhook route needs raw body — mount BEFORE rate limiter and JSON parser
-app.use('/api/v1/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
+// Webhook route — mount BEFORE rate limiter so webhooks are exempt.
+// Uses raw text body for HMAC signature verification.
+app.use('/api/v1/webhooks', express.text({ type: 'application/json' }), webhookRoutes);
 
 // Rate limiting (applied after webhook route so webhooks are exempt)
 const limiter = rateLimit({

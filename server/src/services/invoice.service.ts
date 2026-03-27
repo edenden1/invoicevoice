@@ -1,7 +1,7 @@
 import { prisma } from '../config/database';
 import { config } from '../config';
 import { AppError } from '../middleware/errorHandler';
-import { createPaymentLink } from './stripe.service';
+import { createPaymentLink } from './payme.service';
 import { sendInvoiceSms } from './sms.service';
 import { InvoiceStatus, LineItemType } from '@prisma/client';
 
@@ -268,11 +268,11 @@ export async function sendInvoice(invoiceId: string, userId: string) {
   // Public URL for the invoice (serves HTML via the public endpoint)
   const pdfUrl = `${config.app.baseUrl}/api/v1/invoices/public/${invoice.id}`;
 
-  let stripePaymentId: string | null = null;
-  let stripePaymentUrl: string | null = null;
+  let paymentId: string | null = null;
+  let paymentUrl: string | null = null;
 
-  // Create payment link if Stripe is connected
-  if (profile.stripeAccountId && profile.stripeOnboarded) {
+  // Create payment link if PayMe is connected
+  if (profile.paymeAccountId && profile.paymentOnboarded) {
     try {
       const paymentResult = await createPaymentLink(
         {
@@ -282,10 +282,10 @@ export async function sendInvoice(invoiceId: string, userId: string) {
           customerName: invoice.customerName,
           userId: invoice.userId,
         },
-        profile.stripeAccountId
+        profile.paymeAccountId
       );
-      stripePaymentId = paymentResult.paymentId;
-      stripePaymentUrl = paymentResult.paymentUrl;
+      paymentId = paymentResult.paymentId;
+      paymentUrl = paymentResult.paymentUrl;
     } catch (error) {
       console.error('Failed to create payment link:', error);
       // Continue sending without payment link
@@ -299,8 +299,8 @@ export async function sendInvoice(invoiceId: string, userId: string) {
       status: 'SENT',
       sentAt: invoice.sentAt || new Date(),
       pdfUrl,
-      stripePaymentId,
-      stripePaymentUrl,
+      paymentId,
+      paymentUrl,
     },
     include: { lineItems: true },
   });
@@ -308,7 +308,7 @@ export async function sendInvoice(invoiceId: string, userId: string) {
   // Send SMS if customer phone is available
   if (invoice.customerPhone && config.twilio.accountSid) {
     try {
-      const invoiceUrl = stripePaymentUrl || pdfUrl;
+      const invoiceUrl = paymentUrl || pdfUrl;
       await sendInvoiceSms(
         invoice.customerPhone,
         profile.businessName,

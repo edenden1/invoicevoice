@@ -5,11 +5,11 @@ import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../config/database';
 import { config } from '../config';
 import {
-  createConnectAccount,
+  createMerchantAccount,
   createOnboardingLink,
   retrieveAccount,
-  createCustomerPortalSession,
-} from '../services/stripe.service';
+  createSubscriptionPortalUrl,
+} from '../services/payme.service';
 
 const updateProfileSchema = z.object({
   businessName: z.string().min(1).optional(),
@@ -59,8 +59,8 @@ export async function getProfile(
         city: true,
         state: true,
         zip: true,
-        stripeAccountId: true,
-        stripeOnboarded: true,
+        paymeAccountId: true,
+        paymentOnboarded: true,
         subscriptionStatus: true,
         trialEndsAt: true,
         currentPeriodEnd: true,
@@ -98,7 +98,7 @@ export async function updateProfile(
   }
 }
 
-export async function setupStripe(
+export async function setupPayme(
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -114,15 +114,15 @@ export async function setupStripe(
       throw new AppError('Profile not found', 404);
     }
 
-    let accountId = profile.stripeAccountId;
+    let accountId = profile.paymeAccountId;
 
     if (!accountId) {
-      accountId = await createConnectAccount(userId, req.user!.email);
+      accountId = await createMerchantAccount(userId, req.user!.email);
     }
 
-    // Deep links bring the user back into the mobile app after Stripe onboarding
-    const returnUrl = `${config.app.scheme}://stripe-callback`;
-    const refreshUrl = `${config.app.scheme}://stripe-refresh`;
+    // Deep links bring the user back into the mobile app after PayMe onboarding
+    const returnUrl = `${config.app.scheme}://payme-callback`;
+    const refreshUrl = `${config.app.scheme}://payme-refresh`;
 
     const onboardingUrl = await createOnboardingLink(
       accountId,
@@ -136,7 +136,7 @@ export async function setupStripe(
   }
 }
 
-export async function stripeCallback(
+export async function paymeCallback(
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -146,18 +146,18 @@ export async function stripeCallback(
       where: { userId: req.user!.id },
     });
 
-    if (!profile || !profile.stripeAccountId) {
-      throw new AppError('Stripe account not found', 404);
+    if (!profile || !profile.paymeAccountId) {
+      throw new AppError('PayMe account not found', 404);
     }
 
-    // The account.updated webhook will handle setting stripeOnboarded,
+    // The seller-status-update webhook will handle setting paymentOnboarded,
     // but we can check immediately too
-    const account = await retrieveAccount(profile.stripeAccountId);
+    const account = await retrieveAccount(profile.paymeAccountId);
 
-    if (account.charges_enabled && account.details_submitted) {
+    if (account.active && account.verified) {
       await prisma.profile.update({
         where: { userId: req.user!.id },
-        data: { stripeOnboarded: true },
+        data: { paymentOnboarded: true },
       });
     }
 
@@ -184,7 +184,7 @@ export async function getSubscription(
         subscriptionStatus: true,
         trialEndsAt: true,
         currentPeriodEnd: true,
-        stripeCustomerId: true,
+        paymeCustomerId: true,
       },
     });
 
@@ -206,15 +206,15 @@ export async function manageSubscription(
   try {
     const profile = await prisma.profile.findUnique({
       where: { userId: req.user!.id },
-      select: { stripeCustomerId: true },
+      select: { paymeCustomerId: true },
     });
 
-    if (!profile?.stripeCustomerId) {
+    if (!profile?.paymeCustomerId) {
       throw new AppError('No billing account found. Please contact support.', 404);
     }
 
     const returnUrl = `${config.app.scheme}://settings`;
-    const url = await createCustomerPortalSession(profile.stripeCustomerId, returnUrl);
+    const url = await createSubscriptionPortalUrl(profile.paymeCustomerId, returnUrl);
 
     res.json({ url });
   } catch (error) {

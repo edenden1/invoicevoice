@@ -20,7 +20,7 @@ interface InvoiceForPdf {
   taxRate: number;
   taxAmount: number;
   total: number;
-  stripePaymentUrl?: string | null;
+  paymentUrl?: string | null;
 }
 
 interface ProfileForPdf {
@@ -70,9 +70,9 @@ export function generateInvoiceHtml(
     )
     .join('');
 
-  const payButton = invoice.stripePaymentUrl
+  const payButton = invoice.paymentUrl
     ? `<div class="pay-section">
-        <a href="${escapeHtml(invoice.stripePaymentUrl)}" class="pay-button">Pay Now - ${formatCurrency(invoice.total)}</a>
+        <a href="${escapeHtml(invoice.paymentUrl)}" class="pay-button">Pay Now - ${formatCurrency(invoice.total)}</a>
        </div>`
     : '';
 

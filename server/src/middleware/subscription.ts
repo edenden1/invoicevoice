@@ -3,7 +3,7 @@ import { AuthRequest } from './auth';
 import { prisma } from '../config/database';
 
 // Allows trialing and active subscriptions.
-// past_due gets a grace period (Stripe will retry payment automatically).
+// past_due gets a grace period (PayMe will retry payment automatically).
 // canceled and unpaid are blocked with a 402.
 export async function requireActiveSubscription(
   req: AuthRequest,

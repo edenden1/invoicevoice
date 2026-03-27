@@ -48,8 +48,8 @@ export default function SettingsScreen() {
   const [zip, setZip] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
-  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
-  const [isCheckingStripe, setIsCheckingStripe] = useState(false);
+  const [isConnectingPayme, setIsConnectingPayme] = useState(false);
+  const [isCheckingPayme, setIsCheckingPayme] = useState(false);
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
@@ -97,27 +97,27 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleConnectStripe = async () => {
-    setIsConnectingStripe(true);
+  const handleConnectPayme = async () => {
+    setIsConnectingPayme(true);
     try {
-      const { url } = await profileApi.setupStripe();
+      const { url } = await profileApi.setupPayme();
       await Linking.openURL(url);
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err));
     } finally {
-      setIsConnectingStripe(false);
+      setIsConnectingPayme(false);
     }
   };
 
-  const handleCheckStripeStatus = async () => {
-    setIsCheckingStripe(true);
+  const handleCheckPaymeStatus = async () => {
+    setIsCheckingPayme(true);
     try {
-      await profileApi.confirmStripeOnboarding();
+      await profileApi.confirmPaymeOnboarding();
       await refreshUser();
     } catch {
       // silently ignore — status may still be pending
     } finally {
-      setIsCheckingStripe(false);
+      setIsCheckingPayme(false);
     }
   };
 
@@ -135,8 +135,8 @@ export default function SettingsScreen() {
     ]);
   };
 
-  const stripeOnboarded = user?.profile?.stripeOnboarded ?? false;
-  const stripeStarted = !!(user?.profile?.stripeAccountId);
+  const paymentOnboarded = user?.profile?.paymentOnboarded ?? false;
+  const paymeStarted = !!(user?.profile?.paymeAccountId);
 
   const handleOpenPortal = async () => {
     setIsLoadingPortal(true);
@@ -341,62 +341,62 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Accept Customer Payments (Optional)</Text>
           <View style={styles.card}>
-            {stripeOnboarded ? (
+            {paymentOnboarded ? (
               <>
-                <View style={styles.stripeConnected}>
+                <View style={styles.paymentConnected}>
                   <Ionicons name="checkmark-circle" size={24} color={colors.success} />
-                  <Text style={styles.stripeConnectedText}>Online Payments Active</Text>
+                  <Text style={styles.paymentConnectedText}>Online Payments Active</Text>
                 </View>
-                <Text style={styles.stripeDescription}>
-                  Customers can pay invoices online with Apple Pay, Google Pay, credit card, or bank transfer. Payments go directly to your bank account.
+                <Text style={styles.paymentDescription}>
+                  Customers can pay invoices online with Bit, Apple Pay, credit card, or bank transfer. Payments go directly to your bank account.
                 </Text>
               </>
-            ) : stripeStarted ? (
+            ) : paymeStarted ? (
               <>
-                <View style={styles.stripePending}>
+                <View style={styles.paymentPending}>
                   <Ionicons name="time-outline" size={24} color={colors.accent} />
-                  <Text style={styles.stripePendingText}>Setup In Progress</Text>
+                  <Text style={styles.paymentPendingText}>Setup In Progress</Text>
                 </View>
-                <Text style={styles.stripeDescription}>
+                <Text style={styles.paymentDescription}>
                   You started the payment setup but haven't finished yet. Tap below to continue, or check if it completed.
                 </Text>
                 <Button
                   title="Continue Setup"
-                  onPress={handleConnectStripe}
-                  loading={isConnectingStripe}
+                  onPress={handleConnectPayme}
+                  loading={isConnectingPayme}
                   variant="secondary"
                   fullWidth
-                  style={styles.stripeButton}
+                  style={styles.paymentButton}
                 />
                 <Button
                   title="Check Setup Status"
-                  onPress={handleCheckStripeStatus}
-                  loading={isCheckingStripe}
+                  onPress={handleCheckPaymeStatus}
+                  loading={isCheckingPayme}
                   variant="outline"
                   fullWidth
-                  style={styles.stripeButton}
+                  style={styles.paymentButton}
                 />
               </>
             ) : (
               <>
-                <Text style={styles.stripeDescription}>
-                  Enable online payments so customers can pay by Apple Pay, Google Pay, credit card, or bank transfer directly from their invoice link. Money goes straight to your bank account.
+                <Text style={styles.paymentDescription}>
+                  Enable online payments so customers can pay by Bit, Apple Pay, credit card, or bank transfer directly from their invoice link. Money goes straight to your bank account.
                 </Text>
-                <Text style={styles.stripeSteps}>
-                  You'll need: your bank account details, SSN or EIN, and a few minutes.
+                <Text style={styles.paymentSteps}>
+                  You'll need: your bank account details, Israeli ID, and a few minutes.
                 </Text>
                 <Button
                   title="Set Up Online Payments"
-                  onPress={handleConnectStripe}
-                  loading={isConnectingStripe}
+                  onPress={handleConnectPayme}
+                  loading={isConnectingPayme}
                   variant="secondary"
                   fullWidth
-                  style={styles.stripeButton}
+                  style={styles.paymentButton}
                 />
                 <View style={styles.altPayNote}>
                   <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.altPayText}>
-                    Skip this if you collect payments directly (cash, Venmo, Zelle, check). You can record payments manually on any invoice.
+                    Skip this if you collect payments directly (cash, Bit, bank transfer, check). You can record payments manually on any invoice.
                   </Text>
                 </View>
               </>
@@ -539,33 +539,33 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: spacing.sm,
   },
-  stripeConnectedText: {
+  paymentConnectedText: {
     ...typography.bodyBold,
     color: colors.success,
   },
-  stripePending: {
+  paymentPending: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.sm,
   },
-  stripePendingText: {
+  paymentPendingText: {
     ...typography.bodyBold,
     color: colors.accent,
   },
-  stripeSteps: {
+  paymentSteps: {
     ...typography.small,
     color: colors.textSecondary,
     marginBottom: spacing.sm,
     lineHeight: 20,
   },
-  stripeDescription: {
+  paymentDescription: {
     ...typography.caption,
     color: colors.textSecondary,
     marginBottom: spacing.md,
     lineHeight: 22,
   },
-  stripeButton: {
+  paymentButton: {
     marginTop: spacing.xs,
   },
   altPayNote: {

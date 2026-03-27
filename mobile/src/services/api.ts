@@ -107,8 +107,8 @@ export interface User {
     city?: string;
     state?: string;
     zip?: string;
-    stripeOnboarded: boolean;
-    stripeAccountId?: string;
+    paymentOnboarded: boolean;
+    paymeAccountId?: string;
     subscriptionStatus: string;
     trialEndsAt?: string;
     currentPeriodEnd?: string;
@@ -299,13 +299,13 @@ export const profileApi = {
     return data.profile;
   },
 
-  async setupStripe(): Promise<{ url: string }> {
-    const { data } = await api.post<{ url: string }>('/profile/stripe/setup');
+  async setupPayme(): Promise<{ url: string }> {
+    const { data } = await api.post<{ url: string }>('/profile/payme/setup');
     return data;
   },
 
-  async confirmStripeOnboarding(): Promise<User['profile']> {
-    const { data } = await api.get<{ profile: User['profile'] }>('/profile/stripe/callback');
+  async confirmPaymeOnboarding(): Promise<User['profile']> {
+    const { data } = await api.get<{ profile: User['profile'] }>('/profile/payme/callback');
     return data.profile;
   },
 };
@@ -317,7 +317,7 @@ export interface SubscriptionInfo {
   subscriptionStatus: string;
   trialEndsAt: string | null;
   currentPeriodEnd: string | null;
-  stripeCustomerId: string | null;
+  paymeCustomerId: string | null;
 }
 
 export const subscriptionApi = {

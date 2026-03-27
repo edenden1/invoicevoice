@@ -259,7 +259,7 @@ export async function getPublicInvoice(
           taxAmount: invoice.taxAmount,
           total: invoice.total,
           status: displayStatus,
-          stripePaymentUrl: invoice.stripePaymentUrl,
+          paymentUrl: invoice.paymentUrl,
           createdAt: invoice.createdAt,
           business: {
             name: invoice.user.profile.businessName,

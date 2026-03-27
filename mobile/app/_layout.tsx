@@ -58,7 +58,7 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
-            name="stripe-callback"
+            name="payme-callback"
             options={{ headerShown: false }}
           />
           <Stack.Screen
