@@ -4,8 +4,8 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
 
 COPY prisma ./prisma
 RUN npx prisma generate
@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev && npm install prisma
+COPY package.json ./
+RUN npm install --omit=dev && npm install prisma
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
