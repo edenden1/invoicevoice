@@ -68,7 +68,7 @@ app.use(errorHandler);
 
 // Start server
 const PORT = config.port;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`InvoiceVoice server running on port ${PORT}`);
 });
 
