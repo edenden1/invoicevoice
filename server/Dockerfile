@@ -1,5 +1,4 @@
-# Force rebuild
-FROM node:20-slim AS builder
+FROM node:20-slim
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
@@ -15,19 +14,6 @@ COPY tsconfig.json ./
 COPY src ./src
 RUN npx tsc
 
-FROM node:20-slim
-
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-COPY package.json ./
-RUN npm install --omit=dev && npm install prisma
-
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY prisma ./prisma
-
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "npx prisma db push && node dist/index.js"]
