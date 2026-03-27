@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "InvoiceVoice",
+    "slug": "invoicevoice",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "invoicevoice",
+    "splash": {
+      "backgroundColor": "#1E3A5F"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.invoicevoice.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "InvoiceVoice needs microphone access to create invoices from your voice."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1E3A5F"
+      },
+      "package": "com.invoicevoice.app",
+      "permissions": ["RECORD_AUDIO"]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "InvoiceVoice needs microphone access to create invoices from your voice."
+        }
+      ]
+    ]
+  }
+}
