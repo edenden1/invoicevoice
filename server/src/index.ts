@@ -13,6 +13,9 @@ import { markOverdueInvoices } from './services/invoice.service';
 
 const app = express();
 
+// Trust proxy (Railway, Render, etc. sit behind a reverse proxy)
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
 
