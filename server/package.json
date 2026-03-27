@@ -23,7 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "openai": "^4.82.0",
-    "puppeteer": "^24.3.0",
+    "pdfkit": "^0.16.0",
     "twilio": "^5.5.0",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
@@ -34,6 +34,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^1.4.12",
+    "@types/pdfkit": "^0.13.8",
     "@types/node": "^22.13.4",
     "@types/uuid": "^10.0.0",
     "prisma": "^6.4.0",
