@@ -30,7 +30,7 @@ const API_BASE_URL = __DEV__
   ? Platform.OS === 'android'
     ? 'http://10.0.2.2:3000/api/v1'
     : 'http://localhost:3000/api/v1'
-  : 'https://api.invoicevoice.app/api/v1';
+  : 'https://invoicevoice-production.up.railway.app/api/v1';
 
 const TOKEN_KEY = 'auth_token';
 
